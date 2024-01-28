@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://gpremsan.github.io/sitemap.xml
