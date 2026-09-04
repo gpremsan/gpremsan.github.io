@@ -13,7 +13,3 @@
 # Local tooling / logs
 .claude/
 *.log
-
-# The editing guide lives in the private gpremsan/personal-website repo.
-# This repo is public, so it must never be committed or symlinked here.
-EDITING.md

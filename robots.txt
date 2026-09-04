@@ -1,0 +1,5 @@
+# All crawlers welcome.
+User-agent: *
+Allow: /
+
+Sitemap: https://gpremsan.github.io/sitemap.xml

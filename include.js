@@ -69,8 +69,11 @@
   function markCurrentPage(fragment) {
     var links = fragment.querySelectorAll(".nav-links a[href]");
     Array.prototype.forEach.call(links, function (link) {
-      // link.pathname resolves the href against the current page for us.
-      if (normalise(link.pathname) === here) {
+      // The links still live inside a <template>, whose inert document has no
+      // base URL, so link.pathname is empty there. Resolve the raw href
+      // against this page instead.
+      var path = new URL(link.getAttribute("href"), location.href).pathname;
+      if (normalise(path) === here) {
         link.setAttribute("aria-current", "page");
       }
     });
