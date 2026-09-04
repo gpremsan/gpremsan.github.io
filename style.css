@@ -1,0 +1,626 @@
+/* ---------------------------------------------------------------------------
+   Gopika Premsankar — personal site
+   One stylesheet, shared by every page.
+   No frameworks, no build step, no external requests.
+
+   Design: plain sans-serif, monochrome with a single accent for links,
+   hairline rules instead of boxes, whitespace instead of decoration.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --bg:      #fdfdfc;
+  --fg:      #1c1c1a;
+  --muted:   #61615b;
+  --faint:   #8c8c85;
+  --rule:    #e4e4de;
+  --surface: #f1f1ed;
+  --accent:  #1c5f59;
+  --accent-hover: #2c8a81;
+
+  /* One width for everything on the page, so the whole column sits centred in
+     the window. Wide enough for two columns of list, narrow enough that a line
+     of text stays readable. */
+  --measure: 48rem;
+  --gutter:  clamp(1.5rem, 4vw, 2.75rem);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:     #14161a;
+    --fg:     #e4e4e0;
+    --muted:  #9a9a94;
+    --faint:  #7a7a74;
+    --rule:    #2a2d33;
+    --surface: #1e2127;
+    --accent: #7cc9c0;
+    --accent-hover: #a2ded7;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover { color: var(--accent-hover); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.wrap {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+
+.skip { position: absolute; left: -9999px; }
+
+.skip:focus {
+  left: 1rem;
+  top: 0.5rem;
+  z-index: 100;
+  background: var(--bg);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rule);
+}
+
+/* --- Header ---------------------------------------------------------------
+   A full-width row across the top: name hard left, links hard right, with a
+   hairline under it. It scrolls away with the content — nothing sticky.
+   ------------------------------------------------------------------------- */
+
+/* The nav is injected by include.js. Reserving its height here keeps the
+   page from jumping as it lands. */
+.nav-slot { min-height: 4.05rem; }
+
+.nav { border-bottom: 1px solid var(--rule); }
+
+.nav-inner {
+  padding: 1.15rem var(--gutter);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem 1.5rem;
+}
+
+.nav-name {
+  font-size: 1.0625rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.15rem;
+  font-size: 0.9375rem;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nav-links a:hover { color: var(--accent); }
+
+.nav-links a[aria-current="page"] {
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+/* --- Home: name, role, photo ---------------------------------------------- */
+
+.hero {
+  padding: 2.75rem 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 11rem;
+  column-gap: 2.5rem;
+  align-items: start;
+}
+
+/* Everything in the hero runs the full width by default. The only exceptions
+   are the two blocks that sit side by side: the opening paragraph and the
+   photo beside it. So anything added before .hero-text lands above the photo,
+   and anything added after it runs full width underneath. */
+.hero > * { grid-column: 1 / -1; }
+.hero > .profile-photo { grid-column: 2; }
+
+.hero > .hero-text {
+  grid-column: 1;
+  /* Its last paragraph's bottom margin is zeroed by p:last-child, and grid
+     items don't collapse margins, so the gap goes here instead. */
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.hero .role {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.55;
+  margin: 0 0 1.25rem;
+}
+
+/* Same size as the ledes that open the other pages. (.role keeps its own,
+   larger size — the more specific .hero .role rule wins.) */
+.hero p {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+}
+
+.portrait {
+  width: 100%;
+  /* height:auto is needed for aspect-ratio to win over the height attribute */
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  /* the file is already cropped square, so nothing to reposition */
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 40rem) {
+  .hero { grid-template-columns: 1fr; }
+  /* Reset the two-column placement, or grid-column:2 would conjure a second
+     column back into existence. */
+  .hero > .hero-text,
+  .hero > .profile-photo { grid-column: 1; }
+  .profile-photo {
+    order: -1;
+    width: 7rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* --- Sub-page title ------------------------------------------------------- */
+
+.page-head { padding: 2.75rem 0 0; }
+
+.page-head h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.page-head .lede {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+/* Most ledes are a one-line caption, so muted grey suits them. Add this when
+   the lede is a real paragraph of content meant to be read rather than
+   skimmed past — it gets full contrast, like the intro on the home page. */
+.page-head .lede.intro { color: var(--fg); }
+
+/* --- Sections ------------------------------------------------------------- */
+
+section { scroll-margin-top: 1rem; }
+
+h2 {
+  font-size: 1.1875rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin: 2.5rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+/* The divider above a heading separates it from the section before it. Add
+   this where there is no such section — a heading straight after the page
+   title, say — and the rule and its padding come off. */
+h2.no-rule {
+  border-top: none;
+  padding-top: 0;
+}
+
+h3 {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--fg);
+  margin: 1.6rem 0 0.5rem;
+}
+
+h2 + h3 { margin-top: 0; }
+
+p { margin: 0 0 1rem; }
+p:last-child { margin-bottom: 0; }
+
+/* --- Profile links (home) -------------------------------------------------- */
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.2rem 0.55rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  /* a step up from body text — this row is a signpost, not prose */
+  font-size: 1rem;
+}
+
+.links li + li::before {
+  content: "·";
+  color: var(--faint);
+  margin-right: 0.55rem;
+}
+
+/* No underlines here: four of them in a row under a paragraph reads as
+   clutter. Same treatment as the nav and the publication link chips. */
+.links a { text-decoration: none; }
+
+.links a:hover { text-decoration: underline; }
+
+/* Centred to sit with the links row above it, as one block closing the intro. */
+.contact {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  margin-top: 0.6rem;
+  text-align: center;
+}
+
+.contact code {
+  font-family: inherit;
+  color: var(--fg);
+}
+
+/* --- Aside note ----------------------------------------------------------- */
+
+.callout {
+  background: var(--surface);
+  border-radius: 5px;
+  padding: 0.95rem 1.2rem;
+  margin: 2.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+/* That top margin is meant to set the callout apart from a block of text
+   above it. Straight after a heading it just leaves a hole — the heading's
+   own bottom margin is the right gap there. */
+h2 + .callout,
+h3 + .callout { margin-top: 0; }
+
+.callout strong { color: var(--fg); font-weight: 600; }
+
+main > .callout:last-child { margin-bottom: 3rem; }
+
+/* --- Lists ---------------------------------------------------------------- */
+
+/* Single column. Two columns only fit inside --measure by squeezing entries
+   until names and dates wrap, which reads worse than a longer list. */
+.list,
+.compact {
+  padding-left: 1.15rem;
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.list > li,
+.compact > li { margin-bottom: 0.35rem; }
+
+.list > li::marker,
+.compact > li::marker { color: var(--rule); }
+
+/* Not nowrap: some of these run long (supervisor lists) and would overflow
+   the viewport on a phone. */
+.list .when { color: var(--faint); }
+
+.inline-list {
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+/* --- Year-labelled lists ---------------------------------------------------
+   The year sits in its own column, so no dash or colon is needed between it
+   and the entry — the same shape as the news list on the home page.
+
+   To add an entry, write one line. Nothing else is needed:
+
+       <li><b>2027</b> What happened, with <a href="…">a link</a> if useful.</li>
+
+   A hanging indent does the work, not a grid: an entry often contains inline
+   links, and grid would promote each of those to a column of its own.
+   ------------------------------------------------------------------------- */
+
+.year-list {
+  /* the one number that sets the column width */
+  --year-col: 4rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9375rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* :has() keeps the hanging indent off any entry that has no <b> year, so a
+   line written without one degrades to an ordinary list item rather than
+   hanging out into the left margin. */
+.year-list > li:has(> b:first-child) {
+  padding-left: var(--year-col);
+  text-indent: calc(var(--year-col) * -1);
+}
+
+.year-list > li { line-height: 1.55; }
+
+.year-list > li > b:first-child {
+  display: inline-block;
+  /* min-width, not width: a longer label ("2024–26") pushes the entry along
+     instead of overlapping it. */
+  min-width: calc(var(--year-col) - 0.25rem);
+  text-indent: 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 34rem) {
+  .year-list > li:has(> b:first-child) { padding-left: 0; text-indent: 0; }
+  .year-list > li > b:first-child { display: block; min-width: 0; }
+}
+
+
+/* --- Research ------------------------------------------------------------- */
+
+.focus {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* Stacked, not side by side: these read as short prose blocks, so they line
+     up with the lede above and the project text below. */
+  display: grid;
+  gap: 1.35rem;
+}
+
+.focus b { font-weight: 600; }
+
+.focus span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.project { font-size: 0.9375rem; }
+
+/* Projects have no border or background, so the gap between them is the only
+   thing separating one from the next. On the sibling, so the last one doesn't
+   push the section's bottom edge out. */
+.project + .project { margin-top: 1.75rem; }
+
+.project b { display: block; }
+
+.project .funder {
+  display: block;
+  color: var(--faint);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* --- Publications --------------------------------------------------------- */
+
+.year {
+  font-size: 1.1875rem;
+  font-weight: 650;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.pubs {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pub { margin: 0 0 1.5rem; }
+
+.pub:last-child { margin-bottom: 0; }
+
+.pub .title {
+  display: block;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.pub .authors {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.pub .authors b { color: var(--fg); font-weight: 600; }
+
+.pub .venue {
+  display: block;
+  color: var(--faint);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.pub .note { font-size: 0.9375rem; }
+
+/* An award reads as a quiet aside after the title, not a badge. */
+.award {
+  color: var(--faint);
+  font-weight: 400;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+
+.award::before { content: " — "; }
+
+/* Link chips are bracketed, in the style of a reference list. */
+.pub-links {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.pub-links a {
+  margin-right: 0.5rem;
+  text-decoration: none;
+}
+
+.pub-links a::before { content: "["; }
+.pub-links a::after  { content: "]"; }
+
+.pub-links a:hover { text-decoration: underline; }
+
+/* A single bracketed link trailing a list entry, e.g. slides for a talk. */
+.slides {
+  margin-left: 0.35rem;
+  font-size: 0.8125rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.slides::before { content: "["; }
+.slides::after  { content: "]"; }
+
+.slides:hover { text-decoration: underline; }
+
+/* --- News ----------------------------------------------------------------- */
+
+.news {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.news li {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 0.9rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.news time {
+  color: var(--faint);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.05rem;
+}
+
+@media (max-width: 34rem) {
+  .news li { grid-template-columns: 1fr; gap: 0.15rem; }
+}
+
+details.more { margin-top: 1.5rem; }
+
+details.more > summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.9375rem;
+  list-style: none;
+}
+
+details.more > summary::-webkit-details-marker { display: none; }
+
+details.more > summary::before { content: "+ "; }
+details.more[open] > summary::before { content: "\2212 "; }
+
+details.more > summary:hover { text-decoration: underline; }
+
+details.more .news { margin-top: 1.1rem; }
+
+/* --- "See all …" links ----------------------------------------------------- */
+
+.more-link {
+  display: inline-block;
+  margin-top: 1.1rem;
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+/* Used inline at the end of a sentence rather than on its own line, the top
+   margin would prise that line away from the one above it. */
+p > .more-link { margin-top: 0; }
+
+.more-link::after { content: " \2192"; }
+
+.more-link:hover { text-decoration: underline; }
+
+/* --- Footer --------------------------------------------------------------- */
+
+footer {
+  margin-top: 3.5rem;
+  padding: 0 0 3rem;
+  color: var(--faint);
+  font-size: 0.875rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  justify-content: space-between;
+}
+
+/* The rule is drawn on a pseudo-element rather than as the footer's own
+   border, so that it lines up with the section rules — those sit inside
+   .wrap's padding, a border on .wrap would sit outside it. */
+footer::before {
+  content: "";
+  flex-basis: 100%;
+  border-top: 1px solid var(--rule);
+  margin-bottom: 1.25rem;
+}
+
+footer a { color: var(--muted); }
+
+/* Photo credit: its own line below the rest of the footer, quieter still. */
+.colophon {
+  flex-basis: 100%;
+  font-size: 0.8125rem;
+  opacity: 0.8;
+}
+
+/* --- Print ---------------------------------------------------------------- */
+
+@media print {
+  .nav, .profile-photo, .links, .skip { display: none; }
+  body { font-size: 10.5pt; }
+  section { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+  .pub-links a::before,
+  .pub-links a::after { content: ""; }
+  /* details are force-opened by the beforeprint handler in index.html */
+  details.more > summary { display: none; }
+}
