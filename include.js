@@ -55,6 +55,9 @@
         // replaceWith drops the placeholder itself, so the injected markup
         // ends up as a direct child of <body> — no extra wrapper to style.
         slot.replaceWith(parsed.content);
+        // The footer carries a link to the CV, so let the download counting
+        // below know there is fresh markup to look at.
+        document.dispatchEvent(new CustomEvent("include:loaded"));
       })
       .catch(function (error) {
         console.error("Could not load " + url + ": " + error.message);
@@ -78,4 +81,54 @@
       }
     });
   }
+})();
+
+/* ---------------------------------------------------------------------------
+   PDF download counts.
+
+   GoatCounter counts page views by itself, but a click straight through to a
+   paper, a set of slides or the CV never loads a page, so those downloads
+   would be invisible. Tagging each PDF link with data-goatcounter-click hands
+   it to GoatCounter's own click tracking, which sends the event with
+   navigator.sendBeacon — so it still arrives once the browser has navigated
+   away to the file.
+
+   The tagging happens here rather than in the markup so that a newly linked
+   PDF is counted the moment it is added, and so that the footer's CV link is
+   caught as well: the footer only arrives once the fetch above resolves.
+   --------------------------------------------------------------------------- */
+
+(function () {
+  "use strict";
+
+  function tagPdfLinks() {
+    var links = document.querySelectorAll(
+      'a[href$=".pdf" i]:not([data-goatcounter-click])'
+    );
+
+    Array.prototype.forEach.call(links, function (link) {
+      var url = new URL(link.getAttribute("href"), location.href);
+      var file = url.pathname.split("/").pop().replace(/\.pdf$/i, "");
+
+      // The link text is usually just "PDF" or "Slides", so name the event
+      // after the file. The title keeps enough of the URL to tell apart two
+      // files that happen to share a name — ours from a publisher's copy.
+      link.setAttribute("data-goatcounter-click", "pdf-" + file);
+      link.setAttribute(
+        "data-goatcounter-title",
+        url.host === location.host ? url.pathname : url.host + url.pathname
+      );
+    });
+
+    if (window.goatcounter && window.goatcounter.bind_events) {
+      window.goatcounter.bind_events();
+    }
+  }
+
+  // count.js loads async, so the two scripts can arrive in either order: if it
+  // is not here yet its own load handler binds whatever is tagged by then, and
+  // the listeners below cover the other order. Binding twice is harmless.
+  tagPdfLinks();
+  document.addEventListener("include:loaded", tagPdfLinks);
+  window.addEventListener("load", tagPdfLinks);
 })();
